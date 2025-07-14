@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(ThrowableItem))]
 public class BombSpellInstance : RuntimeSpellBase
 {
     [SerializeField] private float fallowSpeedMultiplier = 25;
 
+    private RenderQueueFollower renderQueue;
     private ThrowableItem throwable;
     private BombSpell bombConfig;
     private Rigidbody rb;
@@ -20,14 +22,45 @@ public class BombSpellInstance : RuntimeSpellBase
         throwable.enabled = false;
 
         rb = GetComponent<Rigidbody>();
+        renderQueue = GetComponent<RenderQueueFollower>();
         rb.isKinematic = true;
+    }
+
+    public override void Init(SpellBase config, GameObject caster, CardController cardController, Vector3 throwVelocity)
+    {
+        base.Init(config, caster, cardController, throwVelocity);
+        bombConfig = config as BombSpell;
+
+        transform.SetParent(cardController.GetVisualTransform());
+
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
+        var targetPos = GetWorldPositionFromScreen(screenPos);
+
+        transform.position = targetPos;
+        throwable.enabled = false;
+        isThrown = false;
+        isFollowingCursor = false;
+
+        // Subscribe to CardView events
+
+        cardController.OnRelease += OnRelease;
+        cardController.OnEndDragging += OnEndDragging;
+        cardController.OnFollowStart += EnableFollow;
+        cardController.OnFollowStop += DisableFollow;
+        cardController.OnThrowConfirmed += ThrowConfirmed;
     }
 
     private void Update()
     {
-        if (isThrown) return;
+        if (!isThrown)
+            HandleFallowBehavior();
 
-        Vector3 targetPos;
+        UpdateSpell();
+    }
+
+    private void HandleFallowBehavior()
+    {
+        Vector3 targetPos = Vector3.zero;
 
         if (isFollowingCursor)
         {
@@ -42,34 +75,6 @@ public class BombSpellInstance : RuntimeSpellBase
 
             transform.position = targetPos;
         }
-        else
-        {
-            return;
-        }
-
-        // Smooth follow
-
-        UpdateSpell();
-    }
-
-    public override void Init(SpellBase config, GameObject caster, CardController cardController, Vector3 throwVelocity)
-    {
-        base.Init(config, caster, cardController, throwVelocity);
-        bombConfig = config as BombSpell;
-
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
-        var targetPos = GetWorldPositionFromScreen(screenPos);
-
-        transform.position = targetPos;
-        throwable.enabled = false;
-        isThrown = false;
-        isFollowingCursor = false;
-
-        // Subscribe to CardView events
-
-        cardController.OnFollowStart += EnableFollow;
-        cardController.OnFollowStop += DisableFollow;
-        cardController.OnThrowConfirmed += ThrowConfirmed;
     }
 
     private void ThrowConfirmed()
@@ -80,15 +85,29 @@ public class BombSpellInstance : RuntimeSpellBase
 
             rb.isKinematic = false;
 
+            transform.SetParent(null);
+
             isThrown = true;
             isFollowingCursor = false;
 
             throwable.enabled = true;
-            Debug.Log(cardController.GetThrowVelocity());
 
+            renderQueue.Detach();
             throwable.ThrowWithVelocity(cardController.GetThrowVelocity());
             CurrentState = SpellState.Active;
         }
+    }
+
+    private void OnEndDragging()
+    {
+        renderQueue.SetFallowStatus(false);
+        Debug.Log("OnEndDragging");
+    }
+
+    private void OnRelease()
+    {
+        renderQueue.SetFallowStatus(true);
+        Debug.Log("OnRelease");
     }
 
     private void EnableFollow()
@@ -102,7 +121,6 @@ public class BombSpellInstance : RuntimeSpellBase
 
     private void DisableFollow()
     {
-
         Debug.Log("DisableFollow");
 
         isFollowingCursor = false;
@@ -193,6 +211,8 @@ public class BombSpellInstance : RuntimeSpellBase
             }
         }
 
+        DebugCreateExplosionEffect(transform.position, radius);
+
         Debug.Log($"Boom! Damage: {damage}, Radius: {radius}");
         Destroy(gameObject);
     }
@@ -206,5 +226,32 @@ public class BombSpellInstance : RuntimeSpellBase
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, bombConfig.radius);
+    }
+
+    public static void DebugCreateExplosionEffect(Vector3 position, float radius, float duration = 0.5f)
+    {
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.SetParent(null);
+        sphere.transform.position = position;
+        sphere.transform.localScale = Vector3.one * radius * 2f;
+
+        sphere.GetComponent<Collider>().isTrigger = true;
+
+        Material mat = new Material(Shader.Find("Standard"));
+        Color color = Color.cyan;
+        color.a = 0.3f;
+        mat.color = color;
+        mat.SetFloat("_Mode", 3);
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetInt("_ZWrite", 0);
+        mat.DisableKeyword("_ALPHATEST_ON");
+        mat.EnableKeyword("_ALPHABLEND_ON");
+        mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        mat.renderQueue = 3000;
+
+        sphere.GetComponent<Renderer>().material = mat;
+
+        Destroy(sphere, duration);
     }
 }

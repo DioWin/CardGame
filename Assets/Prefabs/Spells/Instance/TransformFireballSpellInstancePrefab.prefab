@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 3864229988753687766}
   - component: {fileID: -301160211875485693}
   - component: {fileID: 8292656386810169433}
+  - component: {fileID: -9114816125186611940}
+  - component: {fileID: -1020079236733972914}
   m_Layer: 0
   m_Name: TransformFireballSpellInstancePrefab
   m_TagString: Untagged
@@ -189,3 +191,29 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   randomRadius: 5
+--- !u!210 &-9114816125186611940
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3692335473177891376}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+--- !u!114 &-1020079236733972914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3692335473177891376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baff7869750f49c408cb6ec5058719ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseValue: 1
+  fallowValue: 101

@@ -6,6 +6,8 @@ using UnityEngine.UIElements;
 
 public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    public event Action OnRelease;
+    public event Action OnEndDragging;
     public event Action OnFollowStart;
     public event Action OnFollowStop;
     public event Action OnThrowConfirmed;
@@ -37,6 +39,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     public bool IsBeingDragged { get; private set; }
     private bool isFollowing = false;
 
+
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
@@ -59,6 +62,8 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         dragStartPosition = view.GetVisual().anchoredPosition;
 
         canvasGroup.blocksRaycasts = false;
+
+        OnRelease?.Invoke();
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -71,6 +76,8 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
         float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
         float t = Mathf.InverseLerp(fadeEndOffset, fadeStartOffset, deltaY);
+
+        OnEndDragging?.Invoke();
 
         if (t < 0.5f)
         {
@@ -96,7 +103,6 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
             float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
             velocityTracker.Track();
 
-            // Альфа
             if (deltaY <= fadeStartOffset)
             {
                 view.SetAlpha(1f);
@@ -113,7 +119,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
                 if (!isFollowing)
                 {
-                    OnFollowStart?.Invoke();
+                    OnRelease?.Invoke();
                     isFollowing = true;
                 }
             }
@@ -126,7 +132,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
                 if (shouldFollow != isFollowing)
                 {
                     if (shouldFollow)
-                        OnFollowStart?.Invoke();
+                        OnRelease?.Invoke();
                     else
                         OnFollowStop?.Invoke();
 
@@ -180,5 +186,10 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     public void NudgeFromDirection(float direction)
     {
         view.NudgeFromDirection(direction);
+    }
+
+    public int GetSiblingIndex()
+    {
+        return transform.GetSiblingIndex();
     }
 }

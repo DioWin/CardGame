@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class TransformTargetFireballSpellInstance : RuntimeSpellBase
 {
+    private RenderQueueFollower renderQueue;
     private FireballSpell fireballConfig;
     private ThrowableItem throwable;
     private RaycastFlightController raycastFlight;
@@ -9,7 +10,7 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
 
     public float randomRadius = 1f;
     public float minMagnitudaToThrow = 1f;
-    [SerializeField] private float followSpeedMultiplier = 15f;
+    [SerializeField] private float fallowSpeedMultiplier = 25f;
 
     private bool isFollowingCursor = false;
     private bool isThrown = false;
@@ -18,37 +19,17 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
     {
         throwable = GetComponent<ThrowableItem>();
         raycastFlight = GetComponent<RaycastFlightController>();
+        renderQueue = GetComponent<RenderQueueFollower>();
         rb = GetComponent<Rigidbody>();
         throwable.enabled = false;
-    }
-
-    private void Update()
-    {
-        if (!isThrown)
-        {
-            Vector3 targetPos;
-
-            if (isFollowingCursor)
-            {
-                targetPos = GetWorldPositionFromScreen(Input.mousePosition);
-            }
-            else if (cardController != null)
-            {
-                Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
-                targetPos = GetWorldPositionFromScreen(screenPos);
-            }
-            else return;
-
-            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * followSpeedMultiplier);
-        }
-
-        UpdateSpell();
     }
 
     public override void Init(SpellBase config, GameObject caster, CardController cardController, Vector3 throwVelocity)
     {
         base.Init(config, caster, cardController, throwVelocity);
         fireballConfig = config as FireballSpell;
+
+        transform.SetParent(cardController.GetVisualTransform());
 
         Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
         transform.position = GetWorldPositionFromScreen(screenPos);
@@ -58,11 +39,50 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
         throwable.enabled = false;
         raycastFlight.enabled = false;
 
+        cardController.OnRelease += OnRelease;
+        cardController.OnEndDragging += OnEndDragging;
         cardController.OnFollowStart += EnableFollow;
         cardController.OnFollowStop += DisableFollow;
         cardController.OnThrowConfirmed += ThrowConfirmed;
 
         CurrentState = SpellState.Preparing;
+    }
+
+    private void Update()
+    {
+        if (!isThrown)
+            HandleFallowBehavior();
+
+        UpdateSpell();
+    }
+
+    private void HandleFallowBehavior()
+    {
+        Vector3 targetPos = Vector3.zero;
+
+        if (isFollowingCursor)
+        {
+            targetPos = GetWorldPositionFromScreen(Input.mousePosition);
+
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * fallowSpeedMultiplier);
+        }
+        else if (cardController != null)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
+            targetPos = GetWorldPositionFromScreen(screenPos);
+
+            transform.position = targetPos;
+        }
+    }
+
+    private void OnEndDragging()
+    {
+        renderQueue.SetFallowStatus(false);
+    }
+
+    private void OnRelease()
+    {
+        renderQueue.SetFallowStatus(true);
     }
 
     private void EnableFollow()
@@ -86,8 +106,8 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
 
         throwVelocity = cardController.GetThrowVelocity();
 
-        Debug.Log(throwVelocity.magnitude);
-        Debug.Log(throwVelocity.magnitude > minMagnitudaToThrow);
+        renderQueue.Detach();
+        transform.SetParent(null);
 
         if (throwVelocity.magnitude > minMagnitudaToThrow)
         {
@@ -103,13 +123,9 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
             raycastFlight.enabled = true;
 
             rb.isKinematic = false;
-            Destroy(throwable);
-            Destroy(rb);
 
             Vector3 start = transform.position;
             Vector3 target = raycastFlight.GetRaycastHitPoint();
-
-            GameObject.CreatePrimitive(PrimitiveType.Cube).transform.position = target;
 
             raycastFlight.Init(start, target, fireballConfig.speed, fireballConfig.arcHeight);
         }
@@ -117,14 +133,12 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
         CurrentState = SpellState.Active;
     }
 
-
     protected override void OnPrepare() { }
 
     protected override void OnActive()
     {
         if (throwVelocity.magnitude <= minMagnitudaToThrow && raycastFlight.HasArrived)
         {
-            Debug.Log("h");
             Explode();
             CurrentState = SpellState.Finished;
         }

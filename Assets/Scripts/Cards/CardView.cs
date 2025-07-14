@@ -49,8 +49,8 @@ public class CardView : MonoBehaviour
         visual.SetParent(visualContainer);
         visual.transform.position = transform.position;
 
-        canvas.overrideSorting = true;
-        canvas.sortingOrder = -2;
+        canvas.overrideSorting = false;
+        canvas.sortingOrder = transform.GetSiblingIndex();
     }
 
     private void Update()
@@ -125,15 +125,15 @@ public class CardView : MonoBehaviour
         if (value)
         {
             canvas.overrideSorting = true;
-            canvas.sortingOrder = -1;
+            canvas.sortingOrder = 100;
 
             lastMousePosition = Input.mousePosition;
             SetAlpha(1f);
         }
         else
         {
-            canvas.overrideSorting = true;
-            canvas.sortingOrder = -2;
+            canvas.overrideSorting = false;
+            canvas.sortingOrder = transform.GetSiblingIndex();
             SetAlpha(1f);
         }
     }
