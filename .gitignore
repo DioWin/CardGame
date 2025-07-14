@@ -1,0 +1,14 @@
+Library/metadata/72/7214bac7ecb1f6e48b100f35abe6d340
+Library/
+Temp/
+*.sln
+*.csproj
+Builds/
+AssetBundles/
+Assets/StreamingAssets/
+Assets/StreamingAssets/build_info.txt
+.idea/
+Assets/Plugins/Editor/
+.vs/
+
+ClientServer Core/GameServer/GameServer/bin/Debug/GameServerLogs/
