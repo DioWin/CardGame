@@ -5,9 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(ThrowableItem))]
 public class BombSpellInstance : RuntimeSpellBase
 {
+    [SerializeField] private float fallowSpeedMultiplier = 25;
+
     private ThrowableItem throwable;
     private BombSpell bombConfig;
-    private Rigidbody rigidbody;
+    private Rigidbody rb;
+
     private bool isFollowingCursor = false;
     private bool isThrown = false;
 
@@ -16,15 +19,35 @@ public class BombSpellInstance : RuntimeSpellBase
         throwable = GetComponent<ThrowableItem>();
         throwable.enabled = false;
 
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+        rb.isKinematic = true;
     }
 
     private void Update()
     {
-        if (isFollowingCursor && !isThrown)
+        if (isThrown) return;
+
+        Vector3 targetPos;
+
+        if (isFollowingCursor)
         {
-            transform.position = GetStartPosition();
+            targetPos = GetWorldPositionFromScreen(Input.mousePosition);
+
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * fallowSpeedMultiplier);
         }
+        else if (cardController != null)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
+            targetPos = GetWorldPositionFromScreen(screenPos);
+
+            transform.position = targetPos;
+        }
+        else
+        {
+            return;
+        }
+
+        // Smooth follow
 
         UpdateSpell();
     }
@@ -34,7 +57,10 @@ public class BombSpellInstance : RuntimeSpellBase
         base.Init(config, caster, cardController, throwVelocity);
         bombConfig = config as BombSpell;
 
-        transform.position = GetStartPosition();
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(cardController.GetVisualTransform().position);
+        var targetPos = GetWorldPositionFromScreen(screenPos);
+
+        transform.position = targetPos;
         throwable.enabled = false;
         isThrown = false;
         isFollowingCursor = false;
@@ -44,16 +70,15 @@ public class BombSpellInstance : RuntimeSpellBase
         cardController.OnFollowStart += EnableFollow;
         cardController.OnFollowStop += DisableFollow;
         cardController.OnThrowConfirmed += ThrowConfirmed;
-        gameObject.SetActive(false);
     }
 
     private void ThrowConfirmed()
     {
         if (!isThrown)
         {
-            gameObject.SetActive(true);
-
             Debug.Log("OnThrowConfirmed");
+
+            rb.isKinematic = false;
 
             isThrown = true;
             isFollowingCursor = false;
@@ -68,9 +93,7 @@ public class BombSpellInstance : RuntimeSpellBase
 
     private void EnableFollow()
     {
-        rigidbody.isKinematic = true;
-
-        gameObject.SetActive(true);
+        rb.isKinematic = true;
 
         Debug.Log("EnableFollow");
         isFollowingCursor = true;
@@ -79,9 +102,6 @@ public class BombSpellInstance : RuntimeSpellBase
 
     private void DisableFollow()
     {
-        rigidbody.isKinematic = false;
-
-        gameObject.SetActive(false);
 
         Debug.Log("DisableFollow");
 
@@ -99,6 +119,27 @@ public class BombSpellInstance : RuntimeSpellBase
         float dynamicDistance = baseTrackingDistance * Mathf.Lerp(1f, trackingMultiplier, mouseY01);
 
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Vector3 planeOrigin = mainCamera.transform.position + mainCamera.transform.forward * dynamicDistance;
+        Plane movementPlane = new Plane(-mainCamera.transform.forward, planeOrigin);
+
+        if (movementPlane.Raycast(ray, out float enter))
+        {
+            return ray.GetPoint(enter);
+        }
+
+        return Vector3.zero;
+    }
+
+    private Vector3 GetWorldPositionFromScreen(Vector3 screenPosition)
+    {
+        float baseTrackingDistance = 20f;
+        float trackingMultiplier = 1f;
+        Camera mainCamera = Camera.main;
+
+        float mouseY01 = Mathf.Clamp01(screenPosition.y / Screen.height);
+        float dynamicDistance = baseTrackingDistance * Mathf.Lerp(1f, trackingMultiplier, mouseY01);
+
+        Ray ray = mainCamera.ScreenPointToRay(screenPosition);
         Vector3 planeOrigin = mainCamera.transform.position + mainCamera.transform.forward * dynamicDistance;
         Plane movementPlane = new Plane(-mainCamera.transform.forward, planeOrigin);
 

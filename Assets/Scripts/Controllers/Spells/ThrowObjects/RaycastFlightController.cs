@@ -5,7 +5,8 @@ public class RaycastFlightController : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private float arcHeight = 2f;
     [SerializeField] private float arrivalThreshold = 0.2f;
-    public float randomRadius = 1f;
+    [SerializeField] private LayerMask raycastLayers;
+    [SerializeField] private float randomRadius = 1f;
 
     private Vector3 start;
     private Vector3 target;
@@ -29,6 +30,9 @@ public class RaycastFlightController : MonoBehaviour
     {
         if (!initialized || HasArrived) return;
 
+
+        Debug.Log("Update");
+
         float totalDistance = Vector3.Distance(start, target);
         progress += Time.deltaTime * speed / totalDistance;
         progress = Mathf.Clamp01(progress);
@@ -44,9 +48,16 @@ public class RaycastFlightController : MonoBehaviour
     public Vector3 GetRaycastHitPoint()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Vector3 baseTarget = Physics.Raycast(ray, out RaycastHit hit)
-            ? hit.point
-            : ray.origin + ray.direction * 200f;
+        Vector3 baseTarget;
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, raycastLayers))
+        {
+            baseTarget = hit.point;
+        }
+        else
+        {
+            baseTarget = ray.origin + ray.direction * 200f;
+        }
 
         float scatter = randomRadius;
         Vector2 offset2D = Random.insideUnitCircle * scatter;
@@ -54,4 +65,5 @@ public class RaycastFlightController : MonoBehaviour
 
         return baseTarget + offset;
     }
+
 }

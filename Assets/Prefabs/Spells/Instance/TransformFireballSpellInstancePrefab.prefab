@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7606223941635040627}
   - component: {fileID: 5101066065607675995}
   - component: {fileID: 8946837770218794631}
-  - component: {fileID: 3864229988753687766}
   - component: {fileID: -4842575799927712353}
+  - component: {fileID: 3864229988753687766}
   - component: {fileID: -301160211875485693}
   - component: {fileID: 8292656386810169433}
   m_Layer: 0
@@ -112,21 +112,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3864229988753687766
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3692335473177891376}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d9d3a4d0a8790c49b6be199e7519c59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentStateDebug: 0
-  randomRadius: 1
-  minMagnitudaToThrow: 0
 --- !u!54 &-4842575799927712353
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -150,11 +135,11 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-301160211875485693
+--- !u!114 &3864229988753687766
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,6 +147,22 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3692335473177891376}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d9d3a4d0a8790c49b6be199e7519c59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentStateDebug: 0
+  randomRadius: 1
+  minMagnitudaToThrow: 1
+  followSpeedMultiplier: 25
+--- !u!114 &-301160211875485693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3692335473177891376}
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 764600c844e9a644fb70566cf562b212, type: 3}
   m_Name: 
@@ -176,12 +177,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3692335473177891376}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e129694272f68b438996456af31777c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 20
+  speed: 0.001
   arcHeight: 2
   arrivalThreshold: 0.2
+  raycastLayers:
+    serializedVersion: 2
+    m_Bits: 8
   randomRadius: 5

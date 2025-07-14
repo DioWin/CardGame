@@ -37,13 +37,20 @@ public class CardView : MonoBehaviour
     public void SetData(CardModel model, Transform modelRect, Transform visualContainer)
     {
         label.text = model.cardName;
-        icon.sprite = model.icon;
+
+        if (model.icon != null)
+            icon.sprite = model.icon;
+        else
+            icon.gameObject.SetActive(false);
 
         this.modelRect = modelRect;
         isInitialized = true;
 
         visual.SetParent(visualContainer);
         visual.transform.position = transform.position;
+
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = -2;
     }
 
     private void Update()
@@ -118,14 +125,15 @@ public class CardView : MonoBehaviour
         if (value)
         {
             canvas.overrideSorting = true;
-            canvas.sortingOrder = 2;
+            canvas.sortingOrder = -1;
 
             lastMousePosition = Input.mousePosition;
             SetAlpha(1f);
         }
         else
         {
-            canvas.overrideSorting = false;
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = -2;
             SetAlpha(1f);
         }
     }
