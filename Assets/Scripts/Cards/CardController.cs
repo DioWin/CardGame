@@ -16,7 +16,6 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     [Header("References")]
     [SerializeField] private CardView view;
-    [SerializeField] private CardExplosionEffect explosionEffect;
     [SerializeField] private CanvasGroup canvas;
     [SerializeField] private float fadeDuration = 0.1f;
 

@@ -9,14 +9,18 @@ public class CardView : MonoBehaviour
     [SerializeField] private Image icon;
     [SerializeField] private TMP_Text label;
     [SerializeField] private RectTransform visual;
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private CanvasGroup canvasGroup;
 
+    [Header("Drag Settings")]
     [SerializeField] private float draggSpeed = 20f;
+    [SerializeField] private float fllowDefaultPosSpeed = 20f;
+
     [Header("Rotation")]
     [SerializeField] private float rotationMultiplier = 1.2f;
     [SerializeField] private float maxTiltAngle = 10f;
     [SerializeField] private float tiltSmoothTime = 0.08f;
     [SerializeField] private float resetToDefaultDuration = 0.2f;
-    [SerializeField] private Canvas canvas;
 
     [Header("Nudge Settings")]
     [SerializeField] private float nudgeAngle = 10f;
@@ -29,10 +33,12 @@ public class CardView : MonoBehaviour
     private float tiltVelocity;
 
     public bool isDragging;
-    bool nudgeInProgress;
-    bool isInitialized;
+    private bool nudgeInProgress;
+    private bool isInitialized;
 
-    [SerializeField] private CanvasGroup canvasGroup;
+    private string labelTweenId => $"LabelColor_{GetInstanceID()}";
+    private string nudgeTweenId => $"Nudge_{GetInstanceID()}";
+    private string rotateTweenId => $"Rotate_{GetInstanceID()}";
 
     public void SetData(CardModel model, Transform modelRect, Transform visualContainer)
     {
@@ -60,19 +66,19 @@ public class CardView : MonoBehaviour
 
         if (isDragging)
         {
-            FallowCursor();
-            HandleRotation();
+            FollowCursor();
+            HandleRotationToMouse();
         }
         else
         {
-            visual.position = Vector3.Lerp(visual.position, modelRect.position, Time.deltaTime * 10f);
+            visual.position = Vector3.Lerp(visual.position, modelRect.position, Time.deltaTime * fllowDefaultPosSpeed);
 
             if (!nudgeInProgress)
-                visual.localRotation = Quaternion.Euler(0f, 0f, modelRect.eulerAngles.z);
+                LerpToRotation(modelRect.eulerAngles.z, 10f);
         }
     }
 
-    private void FallowCursor()
+    private void FollowCursor()
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             visual.parent as RectTransform,
@@ -90,15 +96,25 @@ public class CardView : MonoBehaviour
         canvasGroup.blocksRaycasts = alpha > 0.1f;
     }
 
-    private void HandleRotation()
+    private void LerpToRotation(float targetZ, float lerpSpeed)
+    {
+        float currentZ = visual.localEulerAngles.z;
+
+        // Wrap-around fix
+        if (targetZ - currentZ > 180f) currentZ += 360f;
+        else if (currentZ - targetZ > 180f) targetZ += 360f;
+
+        float lerpedZ = Mathf.Lerp(currentZ, targetZ, Time.deltaTime * lerpSpeed);
+        visual.localRotation = Quaternion.Euler(0f, 0f, lerpedZ);
+    }
+
+    private void HandleRotationToMouse()
     {
         Vector2 mouseDelta = (Vector2)Input.mousePosition - lastMousePosition;
         lastMousePosition = Input.mousePosition;
 
         float targetTilt = Mathf.Clamp(-mouseDelta.x * rotationMultiplier, -maxTiltAngle, maxTiltAngle);
-
         currentTilt = Mathf.SmoothDamp(currentTilt, targetTilt, ref tiltVelocity, tiltSmoothTime);
-
         visual.localRotation = Quaternion.Euler(0f, 0f, currentTilt);
     }
 
@@ -107,14 +123,16 @@ public class CardView : MonoBehaviour
         nudgeInProgress = true;
         float angle = direction > 0 ? -nudgeAngle : nudgeAngle;
 
+        DOTween.Kill(nudgeTweenId);
         visual.DOLocalRotate(new Vector3(0f, 0f, angle), nudgeDuration)
             .SetEase(Ease.OutCubic)
+            .SetId(nudgeTweenId)
             .OnComplete(() =>
             {
-                visual.DOLocalRotate(Vector3.zero, returnDuration).SetEase(Ease.OutCubic).OnComplete(() =>
-                {
-                    nudgeInProgress = false;
-                });
+                visual.DOLocalRotate(Vector3.zero, returnDuration)
+                    .SetEase(Ease.OutCubic)
+                    .SetId(nudgeTweenId)
+                    .OnComplete(() => nudgeInProgress = false);
             });
     }
 
@@ -122,25 +140,25 @@ public class CardView : MonoBehaviour
     {
         isDragging = value;
 
-        if (value)
-        {
-            canvas.overrideSorting = true;
-            canvas.sortingOrder = 100;
+        DOTween.Kill(labelTweenId);
+        Color targetColor = label.color;
+        targetColor.a = value ? 0f : 1f;
 
-            lastMousePosition = Input.mousePosition;
-            SetAlpha(1f);
-        }
-        else
-        {
-            canvas.overrideSorting = false;
-            canvas.sortingOrder = transform.GetSiblingIndex();
-            SetAlpha(1f);
-        }
+        label.DOColor(targetColor, 0.2f).SetId(labelTweenId);
+
+        canvas.overrideSorting = value;
+        canvas.sortingOrder = value ? 100 : transform.GetSiblingIndex();
+
+        lastMousePosition = Input.mousePosition;
+        SetAlpha(1f);
     }
 
     public void Reset()
     {
-        visual.DOLocalRotate(Vector3.zero, resetToDefaultDuration).SetEase(Ease.OutQuad);
+        DOTween.Kill(rotateTweenId);
+        visual.DOLocalRotate(Vector3.zero, resetToDefaultDuration)
+            .SetEase(Ease.OutQuad)
+            .SetId(rotateTweenId);
     }
 
     public RectTransform GetVisual()
