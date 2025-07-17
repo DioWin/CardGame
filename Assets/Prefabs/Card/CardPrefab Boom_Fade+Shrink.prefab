@@ -121,8 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc0f12b092dde8449112273d2e5f686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaterial: {fileID: 2100000, guid: d9d37edf4c055f14da4b43f1e0405e62, type: 2}
-  startSqueezeOffset: 10
+  startSqueezeOffset: 11
   endSqueezeOffset: 210
   startFade: 0.05
   endFade: 0.2
