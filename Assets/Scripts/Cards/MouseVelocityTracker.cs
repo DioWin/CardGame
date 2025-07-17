@@ -21,12 +21,12 @@ public class MouseVelocityTracker : MonoBehaviour
         mainCamera = Camera.main;
         cardController = GetComponent<CardController>();
 
-        cardController.OnDragStatusChanged += OnDragStatusChanged;
+        cardController.OnDragStatusChangedEvent += OnDragStatusChanged;
     }
 
     private void OnDestroy()
     {
-        cardController.OnDragStatusChanged -= OnDragStatusChanged;
+        cardController.OnDragStatusChangedEvent -= OnDragStatusChanged;
     }
 
     private void OnDragStatusChanged(bool status)

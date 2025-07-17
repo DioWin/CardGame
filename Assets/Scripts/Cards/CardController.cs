@@ -11,8 +11,8 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     public event Action OnFollowStartEvent;
     public event Action OnFollowStopEvent;
     public event Action OnThrowConfirmedEvent;
-    public event Action<bool> OnDragStatusChanged;
-    public event Action<float> OnDragDistanceChanged;
+    public event Action<bool> OnDragStatusChangedEvent;
+    public event Action<float> OnDragDistanceChangedEvent;
     public event Action OnPointerEnterEvent;
     public event Action OnPointerExitEvent;
 
@@ -55,7 +55,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         IsBeingDragged = true;
         velocityTracker.ResetTracking();
 
-        OnDragStatusChanged?.Invoke(true);
+        OnDragStatusChangedEvent?.Invoke(true);
         dragStartPosition = view.GetVisual().anchoredPosition;
 
         canvasGroup.blocksRaycasts = false;
@@ -69,7 +69,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         IsBeingDragged = false;
         canvasGroup.blocksRaycasts = true;
 
-        OnDragStatusChanged?.Invoke(false);
+        OnDragStatusChangedEvent?.Invoke(false);
         OnEndDraggingEvent?.Invoke();
 
         float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
@@ -94,7 +94,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         if (IsBeingDragged)
         {
             float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
-            OnDragDistanceChanged?.Invoke(deltaY);
+            OnDragDistanceChangedEvent?.Invoke(deltaY);
 
             float threshold = FollowThresholdProvider?.Invoke() ?? float.MaxValue;
             bool shouldFollow = deltaY < threshold;

@@ -10,8 +10,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 72294205672740990, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_Name
-      value: CardPrefab
+      value: CardPrefab Boom_Fade+Ghoste
       objectReference: {fileID: 0}
+    - target: {fileID: 549538337398788890, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+      propertyPath: baseMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: d9d37edf4c055f14da4b43f1e0405e62, type: 2}
     - target: {fileID: 3648136750564387968, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -54,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3648136750564387968, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 47.445675
       objectReference: {fileID: 0}
     - target: {fileID: 3648136750564387968, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -95,5 +99,30 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 72294205672740990, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3211509549326719777}
   m_SourcePrefab: {fileID: 100100000, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+--- !u!1 &597703663635987932 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 72294205672740990, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+  m_PrefabInstance: {fileID: 669821808383993250}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3211509549326719777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597703663635987932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c09b5e3690119d4994f90175a348d09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMaterial: {fileID: 2100000, guid: d9d37edf4c055f14da4b43f1e0405e62, type: 2}
+  startGhostOffset: 100
+  endGhostOffset: 200
+  startGhoste: 1
+  endGhoste: 0

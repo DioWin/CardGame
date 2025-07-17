@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 72294205672740990, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_Name
-      value: CardPrefab Fireball
+      value: CardPrefab Fireball_Fade
       objectReference: {fileID: 0}
     - target: {fileID: 926253191585767273, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: model
@@ -96,7 +96,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 549538337398788890, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
