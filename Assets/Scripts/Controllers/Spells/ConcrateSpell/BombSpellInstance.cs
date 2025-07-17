@@ -43,11 +43,11 @@ public class BombSpellInstance : RuntimeSpellBase
 
         // Subscribe to CardView events
 
-        cardController.OnRelease += OnRelease;
-        cardController.OnEndDragging += OnEndDragging;
-        cardController.OnFollowStart += EnableFollow;
-        cardController.OnFollowStop += DisableFollow;
-        cardController.OnThrowConfirmed += ThrowConfirmed;
+        cardController.OnReleaseEvent += OnRelease;
+        cardController.OnEndDraggingEvent += OnEndDragging;
+        cardController.OnFollowStartEvent += EnableFollow;
+        cardController.OnFollowStopEvent += DisableFollow;
+        cardController.OnThrowConfirmedEvent += ThrowConfirmed;
     }
 
     private void Update()
@@ -82,6 +82,7 @@ public class BombSpellInstance : RuntimeSpellBase
         if (!isThrown)
         {
             Debug.Log("OnThrowConfirmed");
+            Debug.Log(cardController.GetThrowVelocity());
 
             rb.isKinematic = false;
 
@@ -101,13 +102,11 @@ public class BombSpellInstance : RuntimeSpellBase
     private void OnEndDragging()
     {
         renderQueue.SetFallowStatus(false);
-        Debug.Log("OnEndDragging");
     }
 
     private void OnRelease()
     {
         renderQueue.SetFallowStatus(true);
-        Debug.Log("OnRelease");
     }
 
     private void EnableFollow()

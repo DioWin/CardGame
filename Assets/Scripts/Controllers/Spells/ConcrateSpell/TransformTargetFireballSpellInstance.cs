@@ -39,11 +39,11 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
         throwable.enabled = false;
         raycastFlight.enabled = false;
 
-        cardController.OnRelease += OnRelease;
-        cardController.OnEndDragging += OnEndDragging;
-        cardController.OnFollowStart += EnableFollow;
-        cardController.OnFollowStop += DisableFollow;
-        cardController.OnThrowConfirmed += ThrowConfirmed;
+        cardController.OnReleaseEvent += OnRelease;
+        cardController.OnEndDraggingEvent += OnEndDragging;
+        cardController.OnFollowStartEvent += EnableFollow;
+        cardController.OnFollowStopEvent += DisableFollow;
+        cardController.OnThrowConfirmedEvent += ThrowConfirmed;
 
         CurrentState = SpellState.Preparing;
     }

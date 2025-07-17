@@ -1,43 +1,42 @@
+// CardController.cs
 using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
 public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public event Action OnRelease;
-    public event Action OnEndDragging;
-    public event Action OnFollowStart;
-    public event Action OnFollowStop;
-    public event Action OnThrowConfirmed;
+    public event Action OnReleaseEvent;
+    public event Action OnEndDraggingEvent;
+    public event Action OnFollowStartEvent;
+    public event Action OnFollowStopEvent;
+    public event Action OnThrowConfirmedEvent;
+    public event Action<bool> OnDragStatusChanged;
+    public event Action<float> OnDragDistanceChanged;
+    public event Action OnPointerEnterEvent;
+    public event Action OnPointerExitEvent;
+
+    public Func<float> FollowThresholdProvider;
 
     public CardModel model;
 
     [Header("References")]
     [SerializeField] private CardView view;
     [SerializeField] private CanvasGroup canvas;
-    [SerializeField] private float fadeDuration = 0.1f;
 
-    public MouseVelocityTracker velocityTracker;
-
-    [Header("Settings")]
-    public float draggSpeed = 20f;
-
-    [Header("Visual FX")]
-    [SerializeField] private float hoverScale = 1.1f;
-    [SerializeField] private float animDuration = 0.15f;
-
-    [Header("Visibility Fade Settings")]
+    [Header("Drag Settings")]
+    [SerializeField] private float dragSpeed = 20f;
     [SerializeField] private float fadeStartOffset = 10f;
     [SerializeField] private float fadeEndOffset = 15f;
+    [SerializeField] private float throwThreshold = 0.5f;
+
+    public MouseVelocityTracker velocityTracker;
 
     private CanvasGroup canvasGroup;
     private Vector3 dragStartPosition;
 
     public bool IsBeingDragged { get; private set; }
     private bool isFollowing = false;
-
 
     private void Awake()
     {
@@ -48,7 +47,6 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     {
         model = data;
         view.SetData(model, this.transform, visualContainer);
-
         InstantCast(model, GetThrowVelocity());
     }
 
@@ -57,12 +55,13 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         IsBeingDragged = true;
         velocityTracker.ResetTracking();
 
-        view.SetDraggStatus(true);
+        OnDragStatusChanged?.Invoke(true);
         dragStartPosition = view.GetVisual().anchoredPosition;
 
         canvasGroup.blocksRaycasts = false;
+        OnReleaseEvent?.Invoke();
 
-        OnRelease?.Invoke();
+        view.SetDraggStatus(true);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -70,29 +69,24 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         IsBeingDragged = false;
         canvasGroup.blocksRaycasts = true;
 
-        view.SetDraggStatus(false);
-        view.Reset();
+        OnDragStatusChanged?.Invoke(false);
+        OnEndDraggingEvent?.Invoke();
 
         float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
         float t = Mathf.InverseLerp(fadeEndOffset, fadeStartOffset, deltaY);
 
-        OnEndDragging?.Invoke();
+        view.SetDraggStatus(false);
 
-        if (t < 0.5f)
+        if (t < throwThreshold)
         {
-            OnThrowConfirmed?.Invoke();
+            OnThrowConfirmedEvent?.Invoke();
             DestroyCard();
-        }else
-        if (isFollowing)
+        }
+        else if (isFollowing)
         {
-            OnFollowStop?.Invoke();
+            OnFollowStopEvent?.Invoke();
             isFollowing = false;
         }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        view.GetVisual().DOScale(hoverScale, animDuration).SetEase(Ease.OutBack);
     }
 
     private void Update()
@@ -100,60 +94,41 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         if (IsBeingDragged)
         {
             float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
-            velocityTracker.Track();
+            OnDragDistanceChanged?.Invoke(deltaY);
 
-            if (deltaY <= fadeStartOffset)
+            float threshold = FollowThresholdProvider?.Invoke() ?? float.MaxValue;
+            bool shouldFollow = deltaY < threshold;
+
+            if (shouldFollow != isFollowing)
             {
-                view.SetAlpha(1f);
+                if (shouldFollow)
+                    OnReleaseEvent?.Invoke();
+                else
+                    OnFollowStopEvent?.Invoke();
 
-                if (isFollowing)
-                {
-                    OnFollowStop?.Invoke();
-                    isFollowing = false;
-                }
-            }
-            else if (deltaY >= fadeEndOffset)
-            {
-                view.SetAlpha(0f);
-
-                if (!isFollowing)
-                {
-                    OnRelease?.Invoke();
-                    isFollowing = true;
-                }
-            }
-            else
-            {
-                float t = Mathf.InverseLerp(fadeEndOffset, fadeStartOffset, deltaY);
-                view.SetAlpha(t);
-
-                bool shouldFollow = t < 0.5f;
-                if (shouldFollow != isFollowing)
-                {
-                    if (shouldFollow)
-                        OnRelease?.Invoke();
-                    else
-                        OnFollowStop?.Invoke();
-
-                    isFollowing = shouldFollow;
-                }
+                isFollowing = shouldFollow;
             }
         }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+       
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        OnPointerEnterEvent?.Invoke();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OnPointerExitEvent?.Invoke();
     }
 
     public Vector3 GetThrowVelocity()
     {
         return velocityTracker.AveragedVelocity;
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        view.GetVisual().DOScale(hoverScale, animDuration).SetEase(Ease.OutBack);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        view.GetVisual().DOScale(1f, animDuration).SetEase(Ease.OutBack);
     }
 
     public RectTransform GetVisualTransform()
@@ -169,17 +144,13 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public void DestroyCard()
     {
-        //explosionEffect.Init(model.icon, view.GetVisual().transform.parent);
-        //explosionEffect.Explode();
-
         Destroy(view.GetVisual().gameObject);
         Destroy(gameObject);
     }
 
     private void InstantCast(CardModel card, Vector3 throwVelocity)
     {
-        SpellCaster caster = SpellCaster.Instance;
-        caster.CastSpell(model.spell, this, throwVelocity);
+        SpellCaster.Instance.CastSpell(model.spell, this, throwVelocity);
     }
 
     public void NudgeFromDirection(float direction)

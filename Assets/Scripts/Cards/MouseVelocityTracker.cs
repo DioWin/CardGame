@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class MouseVelocityTracker : MonoBehaviour
 {
+    private CardController cardController;
+
     [Header("Mouse Velocity Settings")]
     public int velocitySampleCount = 5;
     public int baseTrackingDistance = 20;
@@ -12,16 +14,38 @@ public class MouseVelocityTracker : MonoBehaviour
     public Vector3 AveragedVelocity { get; private set; }
 
     private Camera mainCamera;
+    private bool isDrugging;
 
     private void Awake()
     {
         mainCamera = Camera.main;
+        cardController = GetComponent<CardController>();
+
+        cardController.OnDragStatusChanged += OnDragStatusChanged;
+    }
+
+    private void OnDestroy()
+    {
+        cardController.OnDragStatusChanged -= OnDragStatusChanged;
+    }
+
+    private void OnDragStatusChanged(bool status)
+    {
+        isDrugging = status;
     }
 
     public void ResetTracking()
     {
         mouseWorldPositions.Clear();
         AveragedVelocity = Vector3.zero;
+    }
+
+    public void Update()
+    {
+        if(isDrugging)
+        {
+            Track();
+        }
     }
 
     public void Track()

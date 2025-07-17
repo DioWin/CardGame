@@ -17,6 +17,7 @@ public class RenderQueueFollower : MonoBehaviour
     public void Detach()
     {
         Destroy(this);
+        Destroy(rend);
     }
 
     public void SetFallowStatus(bool isEnable)

@@ -16,6 +16,9 @@ GameObject:
   - component: {fileID: 6575072794428322247}
   - component: {fileID: 1346854873356437014}
   - component: {fileID: 3379362633632385218}
+  - component: {fileID: 549538337398788890}
+  - component: {fileID: 8719312402438669021}
+  - component: {fileID: 7275377401701670772}
   m_Layer: 5
   m_Name: CardPrefab
   m_TagString: Untagged
@@ -66,13 +69,11 @@ MonoBehaviour:
   model: {fileID: 11400000, guid: 03cecc01ac9ea674f8ccfb9d944cb8b3, type: 2}
   view: {fileID: 8980749615396335385}
   canvas: {fileID: 4949086126925825461}
-  fadeDuration: 0.2
-  velocityTracker: {fileID: 1346854873356437014}
-  draggSpeed: 15
-  hoverScale: 1.1
-  animDuration: 0.1
+  dragSpeed: 20
   fadeStartOffset: 150
   fadeEndOffset: 210
+  throwThreshold: 0.5
+  velocityTracker: {fileID: 1346854873356437014}
 --- !u!114 &8980749615396335385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,8 +91,8 @@ MonoBehaviour:
   visual: {fileID: 2084760036633032294}
   canvas: {fileID: 3134645549308787051}
   canvasGroup: {fileID: 4949086126925825461}
-  draggSpeed: 20
-  fllowDefaultPosSpeed: 20
+  dragSpeed: 20
+  followDefaultPosSpeed: 20
   rotationMultiplier: 6
   maxTiltAngle: 30
   tiltSmoothTime: 0.1
@@ -99,6 +100,8 @@ MonoBehaviour:
   nudgeAngle: 25
   nudgeDuration: 0.07
   returnDuration: 0.07
+  hoverScale: 1.1
+  animDuration: 0.15
   isDragging: 0
 --- !u!225 &3124811276127055001
 CanvasGroup:
@@ -174,6 +177,48 @@ MonoBehaviour:
   hoverTiltAmount: 10
   hoverLerpSpeed: 10
   rectTransform: {fileID: 56709621441930462}
+--- !u!114 &549538337398788890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72294205672740990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cc0f12b092dde8449112273d2e5f686, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleSqueeze: 0.05
+  dragSqueeze: 0.2
+--- !u!114 &8719312402438669021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72294205672740990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b713f3cbc548e40869e9f793f9edf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverScale: 1.1
+  animDuration: 0.15
+--- !u!114 &7275377401701670772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72294205672740990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d3f5acd71fbd4f4ba831c85c5286e49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeStartOffset: 150
+  fadeEndOffset: 210
 --- !u!1 &845001331448960344
 GameObject:
   m_ObjectHideFlags: 0

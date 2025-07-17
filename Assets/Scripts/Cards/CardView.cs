@@ -13,8 +13,8 @@ public class CardView : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
 
     [Header("Drag Settings")]
-    [SerializeField] private float draggSpeed = 20f;
-    [SerializeField] private float fllowDefaultPosSpeed = 20f;
+    [SerializeField] private float dragSpeed = 20f;
+    [SerializeField] private float followDefaultPosSpeed = 20f;
 
     [Header("Rotation")]
     [SerializeField] private float rotationMultiplier = 1.2f;
@@ -26,6 +26,10 @@ public class CardView : MonoBehaviour
     [SerializeField] private float nudgeAngle = 10f;
     [SerializeField] private float nudgeDuration = 0.08f;
     [SerializeField] private float returnDuration = 0.12f;
+
+    [Header("Visual FX")]
+    [SerializeField] private float hoverScale = 1.1f;
+    [SerializeField] private float animDuration = 0.15f;
 
     private Transform modelRect;
     private Vector2 lastMousePosition;
@@ -71,7 +75,7 @@ public class CardView : MonoBehaviour
         }
         else
         {
-            visual.position = Vector3.Lerp(visual.position, modelRect.position, Time.deltaTime * fllowDefaultPosSpeed);
+            visual.position = Vector3.Lerp(visual.position, modelRect.position, Time.deltaTime * followDefaultPosSpeed);
 
             if (!nudgeInProgress)
                 LerpToRotation(modelRect.eulerAngles.z, 10f);
@@ -87,7 +91,7 @@ public class CardView : MonoBehaviour
             out Vector2 localPoint
         );
 
-        visual.anchoredPosition = Vector2.Lerp(visual.anchoredPosition, localPoint, Time.deltaTime * draggSpeed);
+        visual.anchoredPosition = Vector2.Lerp(visual.anchoredPosition, localPoint, Time.deltaTime * dragSpeed);
     }
 
     public void SetAlpha(float alpha)
@@ -100,7 +104,6 @@ public class CardView : MonoBehaviour
     {
         float currentZ = visual.localEulerAngles.z;
 
-        // Wrap-around fix
         if (targetZ - currentZ > 180f) currentZ += 360f;
         else if (currentZ - targetZ > 180f) targetZ += 360f;
 
@@ -159,6 +162,21 @@ public class CardView : MonoBehaviour
         visual.DOLocalRotate(Vector3.zero, resetToDefaultDuration)
             .SetEase(Ease.OutQuad)
             .SetId(rotateTweenId);
+    }
+
+    public void PointerEnter()
+    {
+        visual.DOScale(hoverScale, animDuration).SetEase(Ease.OutBack);
+    }
+
+    public void Drag()
+    {
+        visual.DOScale(hoverScale, animDuration).SetEase(Ease.OutBack);
+    }
+
+    public void PointerExit()
+    {
+        visual.DOScale(1f, animDuration).SetEase(Ease.OutBack);
     }
 
     public RectTransform GetVisual()
