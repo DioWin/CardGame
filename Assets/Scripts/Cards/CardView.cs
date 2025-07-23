@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class CardView : MonoBehaviour
 {
     [SerializeField] private Image icon;
+    [SerializeField] public Image background;
     [SerializeField] private TMP_Text label;
     [SerializeField] private RectTransform visual;
     [SerializeField] private Canvas canvas;

@@ -22,13 +22,13 @@ public class FadeEffectHandler : MonoBehaviour, ICardEffect
         this.view = view;
         this.controller = controller;
 
-        controller.OnDragDistanceChanged += HandleDragDistanceChanged;
+        controller.OnDragDistanceChangedEvent += HandleDragDistanceChanged;
     }
 
     private void OnDestroy()
     {
         if (controller != null)
-            controller.OnDragDistanceChanged -= HandleDragDistanceChanged;
+            controller.OnDragDistanceChangedEvent -= HandleDragDistanceChanged;
     }
 
     private void HandleDragDistanceChanged(float deltaY)

@@ -22,7 +22,7 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
         this.view = view;
         this.controller = controller;
 
-        controller.OnDragStatusChanged += HandleDragStatusChanged;
+        controller.OnDragStatusChangedEvent += HandleDragStatusChanged;
         controller.OnPointerEnterEvent += HandlePointerEnter;
         controller.OnPointerExitEvent += HandlePointerExit;
     }
@@ -31,7 +31,7 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
     {
         if (controller != null)
         {
-            controller.OnDragStatusChanged -= HandleDragStatusChanged;
+            controller.OnDragStatusChangedEvent -= HandleDragStatusChanged;
             controller.OnPointerEnterEvent -= HandlePointerEnter;
             controller.OnPointerExitEvent -= HandlePointerExit;
         }
