@@ -30,6 +30,12 @@ public class HandView : MonoBehaviour
         ApplyCurveLayout();
     }
 
+    private void Update()
+    {
+        UpdateCardSiblingOrder();
+        ApplyCurveLayout();
+    }
+
     private void HandleCardRemoved(CardInstance instance)
     {
         if (_cardViews.TryGetValue(instance, out var view))
@@ -61,4 +67,36 @@ public class HandView : MonoBehaviour
             card.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
         }
     }
+
+    private void UpdateCardSiblingOrder()
+    {
+        var cards = _cardViews.Values;
+        CardViewMVVM dragged = null;
+
+        foreach (var card in cards)
+        {
+            if (card.IsBeingDragged())
+            {
+                dragged = card;
+                break;
+            }
+        }
+
+        if (dragged == null) return;
+
+        float draggedX = dragged.GetVisual().position.x;
+        int oldIndex = dragged.transform.GetSiblingIndex();
+        int newIndex = 0;
+
+        foreach (var card in cards)
+        {
+            if (card == dragged) continue;
+            if (draggedX > card.GetVisual().position.x)
+                newIndex = Mathf.Max(newIndex, card.transform.GetSiblingIndex() + 1);
+        }
+
+        if (newIndex != oldIndex)
+            dragged.transform.SetSiblingIndex(newIndex);
+    }
+
 }

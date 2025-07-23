@@ -1,4 +1,3 @@
-// CardController.cs
 using DG.Tweening;
 using System;
 using UnityEngine;
@@ -18,10 +17,11 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public Func<float> FollowThresholdProvider;
 
-    public CardModel model;
+    public CardInstance Instance { get; private set; }
+    public CardModel Template => Instance?.Template;
 
     [Header("References")]
-    [SerializeField] private CardView view;
+    [SerializeField] private BaseCardView view;
     [SerializeField] private CanvasGroup canvas;
 
     [Header("Drag Settings")]
@@ -37,17 +37,23 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public bool IsBeingDragged { get; private set; }
     private bool isFollowing = false;
+    private bool inHand = false;
 
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    public void Init(CardModel data, RectTransform visualContainer)
+    public void Init(CardInstance instance, RectTransform visualContainer, bool inHand = false)
     {
-        model = data;
-        view.SetData(model, this.transform, visualContainer);
-        InstantCast(model, GetThrowVelocity());
+        Instance = instance;
+
+        view.SetData(instance.Template, this.transform, visualContainer);
+
+        this.inHand = inHand;
+
+        if (inHand)
+            RenderSpell(instance.Template, GetThrowVelocity());
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -72,13 +78,18 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         OnDragStatusChangedEvent?.Invoke(false);
         OnEndDraggingEvent?.Invoke();
 
+        view.SetDraggStatus(false);
+
+        if (!inHand)
+           return;
+
         float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
         float t = Mathf.InverseLerp(fadeEndOffset, fadeStartOffset, deltaY);
 
-        view.SetDraggStatus(false);
 
         if (t < throwThreshold)
         {
+            Instance.IsDestroyed = true;
             OnThrowConfirmedEvent?.Invoke();
             DestroyCard();
         }
@@ -111,10 +122,7 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         }
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-       
-    }
+    public void OnDrag(PointerEventData eventData) { }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -148,9 +156,10 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         Destroy(gameObject);
     }
 
-    private void InstantCast(CardModel card, Vector3 throwVelocity)
+    private void RenderSpell(CardModel card, Vector3 throwVelocity)
     {
-        SpellCaster.Instance.CastSpell(model.spell, this, throwVelocity);
+        SpellCaster.Instance.CastSpell(card.spell, this, throwVelocity);
+        Instance.WasPlayedThisRound = true;
     }
 
     public void NudgeFromDirection(float direction)
@@ -161,5 +170,10 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     public int GetSiblingIndex()
     {
         return transform.GetSiblingIndex();
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log("Destroy");
     }
 }

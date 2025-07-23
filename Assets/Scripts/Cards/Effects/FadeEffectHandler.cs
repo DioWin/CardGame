@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class FadeEffectHandler : MonoBehaviour, ICardEffect
 {
-    private CardView view;
+    private BaseCardView view;
     private CardController controller;
 
     [Header("Fade Settings")]
@@ -11,13 +11,13 @@ public class FadeEffectHandler : MonoBehaviour, ICardEffect
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<GameCardView>();
         controller = GetComponent<CardController>();
 
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(BaseCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;

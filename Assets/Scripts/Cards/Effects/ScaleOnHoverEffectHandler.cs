@@ -3,24 +3,27 @@ using UnityEngine;
 
 public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
 {
-    private CardView view;
+    private BaseCardView view;
     private CardController controller;
 
     [Header("Hover Settings")]
     [SerializeField] private float hoverScale = 1.1f;
+    [SerializeField] private float defaultHoverScale = 1f;
     [SerializeField] private float animDuration = 0.15f;
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<BaseCardView>();
         controller = GetComponent<CardController>();
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(BaseCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;
+
+        HandlePointerExit();
 
         controller.OnDragStatusChangedEvent += HandleDragStatusChanged;
         controller.OnPointerEnterEvent += HandlePointerEnter;
@@ -44,7 +47,7 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
 
     private void HandlePointerExit()
     {
-        view.GetVisual().DOScale(1, animDuration);
+        view.GetVisual().DOScale(defaultHoverScale, animDuration);
     }
 
     private void HandleDragStatusChanged(bool isDragging)

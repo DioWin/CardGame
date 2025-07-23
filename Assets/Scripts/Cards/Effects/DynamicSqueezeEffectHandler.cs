@@ -14,12 +14,12 @@ public class DynamicSqueezeEffectHandler : MonoBehaviour, ICardEffect
     [SerializeField] private float minScale = 0.92f;
     [SerializeField] private float maxScale = 1f;
 
-    [SerializeField] private float centerShiftPower = 0.4f; // „им менше Ч тим швидше рух центра
+    [SerializeField] private float centerShiftPower = 0.4f;
 
     private static readonly int FadeProp = Shader.PropertyToID("_SqueezeFade");
     private static readonly int CenterProp = Shader.PropertyToID("_SqueezeCenter");
 
-    private CardView view;
+    private BaseCardView view;
     private CardController controller;
     private Material runtimeMaterial;
     private CardMaterialController initalizator;
@@ -28,14 +28,14 @@ public class DynamicSqueezeEffectHandler : MonoBehaviour, ICardEffect
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<BaseCardView>();
         controller = GetComponent<CardController>();
         initalizator = GetComponent<CardMaterialController>();
 
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(BaseCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;

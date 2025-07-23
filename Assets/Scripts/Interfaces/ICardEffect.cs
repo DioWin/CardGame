@@ -1,4 +1,4 @@
 public interface ICardEffect
 {
-    void Init(CardView view, CardController controller);
+    void Init(BaseCardView view, CardController controller);
 }

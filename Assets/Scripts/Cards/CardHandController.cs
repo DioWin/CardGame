@@ -3,15 +3,20 @@ using UnityEngine;
 
 public class CardHandController : MonoBehaviour
 {
-    public List<CardController> cards = new List<CardController>();
+    public List<CardController> cards = new();
     public RectTransform visualHendler;
     public CurveParameters curveParameters;
 
     private int lastDraggedIndex = -1;
+    private float lastDraggedX = float.NaN;
 
-    private void Awake()
+    public void SpawnCard(CardInstance instance, GameObject cardPrefab)
     {
-        UpdateList();
+        var cardGO = Instantiate(cardPrefab, transform);
+        var controller = cardGO.GetComponent<CardController>();
+        controller.Init(instance, visualHendler, true);
+        cards.Add(controller);
+        ApplyCurveLayout();
     }
 
     public void UpdateList()
@@ -19,8 +24,8 @@ public class CardHandController : MonoBehaviour
         cards.Clear();
         cards.AddRange(GetComponentsInChildren<CardController>());
 
-        for (int i = 0; i < cards.Count; i++)
-            cards[i].Init(cards[i].model, visualHendler);
+        foreach (var card in cards)
+            card.Init(card.Instance, visualHendler, true);
 
         ApplyCurveLayout();
     }
@@ -28,7 +33,6 @@ public class CardHandController : MonoBehaviour
     private void Update()
     {
         cards.RemoveAll(c => c == null);
-
         UpdateCardSiblingOrder();
         ApplyCurveLayout();
     }
@@ -37,18 +41,16 @@ public class CardHandController : MonoBehaviour
     {
         if (cards.Count == 0 || curveParameters == null) return;
 
-        int cardCount = transform.childCount;
+        int cardCount = cards.Count;
 
         for (int i = 0; i < cardCount; i++)
         {
-            var card = transform.GetChild(i).GetComponent<CardController>();
-            if (card == null) continue;
-
+            var card = cards[i];
             float t = cardCount == 1 ? 0.5f : (float)i / (cardCount - 1);
             float x = Mathf.Lerp(-curveParameters.curveWidth / 2f, curveParameters.curveWidth / 2f, t);
             float y = curveParameters.positionCurve.Evaluate(t) * curveParameters.curveHeight;
 
-            Vector2 targetPos = new Vector2(x, y);
+            Vector2 targetPos = new(x, y);
             card.transform.localPosition = targetPos;
 
             float angle = curveParameters.rotationCurve.Evaluate(t) * curveParameters.rotationInfluence;
@@ -75,7 +77,6 @@ public class CardHandController : MonoBehaviour
         for (int i = 0; i < cards.Count; i++)
         {
             if (cards[i] == draggedCard) continue;
-
             if (draggedX > cards[i].GetVisualTransform().position.x)
                 newIndex = Mathf.Max(newIndex, cards[i].transform.GetSiblingIndex() + 1);
         }
@@ -87,7 +88,6 @@ public class CardHandController : MonoBehaviour
             if (crossedIndex >= 0 && crossedIndex < transform.childCount)
             {
                 var crossedCard = transform.GetChild(crossedIndex).GetComponent<CardController>();
-
                 if (crossedCard != null && crossedCard != draggedCard)
                 {
                     float crossedX = crossedCard.GetVisualTransform().position.x;
@@ -108,7 +108,4 @@ public class CardHandController : MonoBehaviour
 
         lastDraggedX = draggedX;
     }
-
-
-    private float lastDraggedX = float.NaN;
 }

@@ -8,7 +8,7 @@ public class DropScaleEffectHandler : MonoBehaviour, ICardEffect
     [SerializeField] private float duration = 0.2f;
     [SerializeField] private Ease ease = Ease.OutBack;
 
-    private CardView view;
+    private BaseCardView view;
     private CardController controller;
     private Vector3 originalScale;
 
@@ -16,14 +16,14 @@ public class DropScaleEffectHandler : MonoBehaviour, ICardEffect
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<GameCardView>();
         controller = GetComponent<CardController>();
 
         originalScale = Vector3.one;
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(BaseCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;

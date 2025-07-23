@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CardView), typeof(CardController))]
+[RequireComponent(typeof(GameCardView), typeof(CardController))]
 public class SqueezeEffectHandler : MonoBehaviour, ICardEffect
 {
     [Header("Squeeze Fade Values")]
@@ -16,21 +16,21 @@ public class SqueezeEffectHandler : MonoBehaviour, ICardEffect
     private static readonly int CenterProp = Shader.PropertyToID("_SqueezeCenter");
 
 
-    private CardView view;
+    private BaseCardView view;
     private CardController controller;
     private Material runtimeMaterial;
     private CardMaterialController initalizator;
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<BaseCardView>();
         controller = GetComponent<CardController>();
         initalizator = GetComponent<CardMaterialController>();
 
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(BaseCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;

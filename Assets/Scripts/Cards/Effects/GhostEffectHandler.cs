@@ -12,7 +12,7 @@ public class GhostEffectHandler : MonoBehaviour
 
     private static readonly int FadeProp = Shader.PropertyToID("_Saturation");
 
-    private CardView view;
+    private GameCardView view;
     private CardController controller;
     private Material runtimeMaterial;
 
@@ -20,14 +20,14 @@ public class GhostEffectHandler : MonoBehaviour
 
     private void Awake()
     {
-        view = GetComponent<CardView>();
+        view = GetComponent<GameCardView>();
         controller = GetComponent<CardController>();
         initalizator = GetComponent<CardMaterialController>();
 
         Init(view, controller);
     }
 
-    public void Init(CardView view, CardController controller)
+    public void Init(GameCardView view, CardController controller)
     {
         this.view = view;
         this.controller = controller;

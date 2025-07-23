@@ -2,15 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : Singleton<EnemySpawner>
 {
     [SerializeField] private List<GameObject> enemyPrefabs = new List<GameObject>();
-    [SerializeField] private float spawnLength = 10f; // довжина від центру вправо і вліво
+    [SerializeField] private float spawnLength = 10f;
     [SerializeField] private int count = 3;
     [SerializeField] private float spawnDelay = 3f;
     [SerializeField] private Transform enemyContainer;
 
-    private void Start()
+    public void StartWave()
     {
         if (enemyPrefabs == null || enemyPrefabs.Count == 0)
         {
@@ -21,11 +21,11 @@ public class EnemySpawner : MonoBehaviour
         StartCoroutine(Spawn());
     }
 
-    public IEnumerator Spawn()
+    private IEnumerator Spawn()
     {
         for (int i = 0; i < count; i++)
         {
-            float offset = Random.Range(-spawnLength / 2f, spawnLength / 2f); // випадкове зміщення по X
+            float offset = Random.Range(-spawnLength / 2f, spawnLength / 2f);
             Vector3 pos = transform.position + new Vector3(offset, 0f, 0f);
 
             int index = Random.Range(0, enemyPrefabs.Count);
