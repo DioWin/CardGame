@@ -54,7 +54,6 @@ public abstract class BaseCardView : MonoBehaviour
         visual.SetParent(visualContainer);
         visual.transform.position = transform.position;
 
-        canvas.overrideSorting = false;
         canvas.sortingOrder = transform.GetSiblingIndex();
     }
 
@@ -68,14 +67,18 @@ public abstract class BaseCardView : MonoBehaviour
     {
         isDragging = value;
 
+        if (isDragging)
+            canvas.sortingOrder = 100;
+        else
+        {
+            canvas.sortingOrder = visual.GetSiblingIndex() + 1;
+        }
+
         DOTween.Kill(labelTweenId);
         Color targetColor = label.color;
         targetColor.a = value ? 0f : 1f;
 
         label.DOColor(targetColor, 0.2f).SetId(labelTweenId);
-
-        canvas.overrideSorting = value;
-        canvas.sortingOrder = value ? 100 : transform.GetSiblingIndex();
 
         lastMousePosition = Input.mousePosition;
         SetAlpha(1f);
@@ -141,4 +144,19 @@ public abstract class BaseCardView : MonoBehaviour
     }
 
     public RectTransform GetVisual() => visual;
+
+    public virtual void UpdateSublingIndexAndCanvasSorting(int sublingIndex)
+    {
+        visual.SetSiblingIndex(sublingIndex);
+
+        if(isDragging)
+            return;
+
+        canvas.sortingOrder = sublingIndex;
+    }
+
+    public void OverrideCanvas(bool isEnable)
+    {
+        canvas.overrideSorting = isEnable;
+    }
 }

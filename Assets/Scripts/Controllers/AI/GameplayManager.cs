@@ -1,24 +1,29 @@
 using UnityEngine;
 
-public class GameplayManager : MonoBehaviour
+public class GameplayManager : Singleton<GameplayManager>
 {
     [Header("References")]
     [SerializeField] private CardHandController handController;
+    [SerializeField] private DrawCardAnimator drawCardAnimator;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private CardModel[] startingDeckTemplates;
     [SerializeField] private DeckViewerController deckViewer;
     [SerializeField] private int startHandSize = 5;
 
+    [Header("Timing")]
+    [SerializeField] private float roundStartDelay = 2.5f;
+
     private DeckService deckService;
     private GameState currentState;
+
+    private bool isStartingRound = false;
+    private float roundStartTime;
 
     private void Start()
     {
         deckService = new DeckService();
         CreateInitialDeck();
-
         deckViewer.Init(deckService);
-
         ChangeState(GameState.Preparing);
     }
 
@@ -28,6 +33,15 @@ public class GameplayManager : MonoBehaviour
             deckService.AddCard(model);
 
         deckService.Shuffle();
+    }
+
+    private void Update()
+    {
+        if (isStartingRound && Time.time >= roundStartTime)
+        {
+            isStartingRound = false;
+            BeginRound();
+        }
     }
 
     public void ChangeState(GameState newState)
@@ -41,7 +55,7 @@ public class GameplayManager : MonoBehaviour
                 break;
 
             case GameState.Preparing:
-                StartNewRound();
+                PrepareRound();
                 break;
 
             case GameState.Combat:
@@ -58,19 +72,29 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    private void StartNewRound()
+    private void PrepareRound()
+    {
+        roundStartTime = Time.time + roundStartDelay;
+        isStartingRound = true;
+    }
+
+    private void BeginRound()
     {
         EnemySpawner.Instance.StartWave();
 
         deckService.ResetRoundState();
         deckService.Shuffle();
 
-        var drawnCards = deckService.Draw(startHandSize);
-
-        foreach (var card in drawnCards)
-            handController.SpawnCard(card, cardPrefab);
+        DrawCards(startHandSize);
 
         ChangeState(GameState.Combat);
+    }
+
+    public void DrawCards(int amount)
+    {
+        var cards = deckService.Draw(amount);
+        if (cards.Count > 0)
+            drawCardAnimator.StartAnimateDraw(cards, handController, cardPrefab);
     }
 
     public void OnEnemyWaveCleared()

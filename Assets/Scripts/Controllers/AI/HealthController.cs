@@ -1,10 +1,15 @@
+using System;
 using Unity.Collections;
 using UnityEngine;
 
 public class HealthController : MonoBehaviour
 {
+    public Action OnDeath;
+    public Action OnTakeDamage;
+
     [SerializeField] private float maxHealth = 100;
     [SerializeField][ReadOnly] private float currentHealth;
+    [SerializeField] private bool CanDestroyOnDeath = false;
 
     public bool IsAlive => currentHealth > 0;
     public bool isImortal;
@@ -21,14 +26,20 @@ public class HealthController : MonoBehaviour
 
         if (!IsAlive) return;
 
+        OnTakeDamage?.Invoke();
+
         currentHealth -= amount;
         if (currentHealth <= 0)
-            Die();
+            Death();
     }
 
-    private void Die()
+    private void Death()
     {
         // TODO: Add death logic
-        Destroy(gameObject);
+
+        OnDeath?.Invoke();
+
+        if (CanDestroyOnDeath)
+            Destroy(gameObject, 2f);
     }
 }

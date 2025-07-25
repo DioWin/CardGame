@@ -17,6 +17,8 @@ public class CardHandController : MonoBehaviour
         controller.Init(instance, visualHendler, true);
         cards.Add(controller);
         ApplyCurveLayout();
+
+        UpdateSubling();
     }
 
     public void UpdateList()
@@ -28,6 +30,14 @@ public class CardHandController : MonoBehaviour
             card.Init(card.Instance, visualHendler, true);
 
         ApplyCurveLayout();
+    }
+
+    private void UpdateSubling()
+    {
+        foreach (var card in cards)
+        {
+            card.SetSiblingIndex(card.transform.GetSiblingIndex());
+        }
     }
 
     private void Update()
@@ -97,15 +107,24 @@ public class CardHandController : MonoBehaviour
                          (lastDraggedX > crossedX && draggedX <= crossedX)))
                     {
                         float direction = Mathf.Sign(draggedX - lastDraggedX);
-                        crossedCard.NudgeFromDirection(-direction);
+                        crossedCard.NudgeFromDirection(direction);
                     }
                 }
             }
 
             draggedCard.SetSiblingIndex(newIndex);
             lastDraggedIndex = newIndex;
+
+            SyncCardsWithHierarchy();
         }
 
         lastDraggedX = draggedX;
     }
+
+    private void SyncCardsWithHierarchy()
+    {
+        cards.Clear();
+        cards.AddRange(GetComponentsInChildren<CardController>());
+    }
+
 }

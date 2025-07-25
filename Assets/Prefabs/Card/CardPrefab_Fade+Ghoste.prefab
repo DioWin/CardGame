@@ -10,12 +10,20 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 72294205672740990, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_Name
-      value: CardPrefab Boom_Fade+Ghoste
+      value: CardPrefab_Fade+Ghoste
       objectReference: {fileID: 0}
     - target: {fileID: 549538337398788890, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: baseMaterial
       value: 
       objectReference: {fileID: 2100000, guid: d9d37edf4c055f14da4b43f1e0405e62, type: 2}
+    - target: {fileID: 3134645549308787051, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3134645549308787051, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+      propertyPath: m_OverrideSorting
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3648136750564387968, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

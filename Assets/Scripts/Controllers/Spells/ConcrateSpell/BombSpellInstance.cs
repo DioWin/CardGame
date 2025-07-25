@@ -81,9 +81,6 @@ public class BombSpellInstance : RuntimeSpellBase
     {
         if (!isThrown)
         {
-            Debug.Log("OnThrowConfirmed");
-            Debug.Log(cardController.GetThrowVelocity());
-
             rb.isKinematic = false;
 
             transform.SetParent(null);
@@ -101,12 +98,10 @@ public class BombSpellInstance : RuntimeSpellBase
 
     private void OnEndDragging()
     {
-        renderQueue.SetFallowStatus(false);
     }
 
     private void OnRelease()
     {
-        renderQueue.SetFallowStatus(true);
     }
 
     private void EnableFollow()
@@ -198,19 +193,34 @@ public class BombSpellInstance : RuntimeSpellBase
 
     private void Explode()
     {
+        CameraShakeController.Instance.ShakeCamera();
+
         float damage = bombConfig.damage;
         float radius = bombConfig.radius;
+        float force = bombConfig.explosionForce;
 
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, radius);
+        Vector3 explosionOrigin = transform.position;
+
+        Collider[] hitColliders = Physics.OverlapSphere(explosionOrigin, radius);
         foreach (var hit in hitColliders)
         {
             if (hit.TryGetComponent<IDamageable>(out var damageable))
             {
                 damageable.TakeDamage(damage);
             }
+
+            //if (hit.attachedRigidbody != null)
+            //{
+            //    Rigidbody rb = hit.attachedRigidbody;
+
+            //    //rb.isKinematic = false;
+            //    //rb.constraints = RigidbodyConstraints.None;
+
+            //    rb.AddExplosionForce(force, explosionOrigin, radius, 0.5f, ForceMode.Impulse);
+            //}
         }
 
-        DebugCreateExplosionEffect(transform.position, radius);
+        DebugCreateExplosionEffect(explosionOrigin, radius);
 
         Debug.Log($"Boom! Damage: {damage}, Radius: {radius}");
         Destroy(gameObject);

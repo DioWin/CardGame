@@ -7,11 +7,15 @@ public class RenderQueueFollower : MonoBehaviour
     [SerializeField] private int baseValue = 1;
     [SerializeField] private int fallowValue = 101;
     private SortingGroup rend;
+    private Canvas perentCanvas;
     private bool currentStatus;
 
-    private void Awake()
+    private int prevCanvasValue = -1;
+
+    private void Start()
     {
         rend = GetComponent<SortingGroup>();
+        perentCanvas = GetComponentInParent<Canvas>();
     }
 
     public void Detach()
@@ -20,20 +24,19 @@ public class RenderQueueFollower : MonoBehaviour
         Destroy(rend);
     }
 
-    public void SetFallowStatus(bool isEnable)
+    private void Update()
     {
-        if (currentStatus == isEnable) 
+        if (perentCanvas == null)
+        {
+            Debug.Log(transform.name);
             return;
-
-        currentStatus = isEnable;
-
-        if (isEnable) 
-        {
-            rend.sortingOrder = fallowValue;
         }
-        else
+
+        if (perentCanvas.sortingOrder != prevCanvasValue)
         {
-            rend.sortingOrder = baseValue;
+            prevCanvasValue = perentCanvas.sortingOrder;
+
+            rend.sortingOrder = prevCanvasValue;
         }
     }
 }

@@ -133,6 +133,10 @@ PrefabInstance:
       value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 8719312402438669021, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
+      propertyPath: drugingSize
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8719312402438669021, guid: 1d910067dc9c9b64e84b54253a2faf3b, type: 3}
       propertyPath: defaultHoverScale
       value: 0.6
       objectReference: {fileID: 0}

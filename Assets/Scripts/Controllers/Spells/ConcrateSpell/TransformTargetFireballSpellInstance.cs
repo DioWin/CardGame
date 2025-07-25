@@ -77,12 +77,10 @@ public class TransformTargetFireballSpellInstance : RuntimeSpellBase
 
     private void OnEndDragging()
     {
-        renderQueue.SetFallowStatus(false);
     }
 
     private void OnRelease()
     {
-        renderQueue.SetFallowStatus(true);
     }
 
     private void EnableFollow()

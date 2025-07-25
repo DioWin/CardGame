@@ -39,7 +39,7 @@ public class DeckViewerSpellSection : MonoBehaviour
         controller.Init(instance, visualParent);
 
         var cardView = go.GetComponent<DeckViewerCardView>();
-        cardView.Init(instance, visualParent);
+        cardView.Init(instance, this.transform);
         cardView.OnHoveredEnter += HandleCardHoveredEnter;
         cardView.OnHoveredExit += HandleCardHoveredExit;
 
