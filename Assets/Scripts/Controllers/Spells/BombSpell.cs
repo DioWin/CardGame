@@ -8,6 +8,7 @@ public class BombSpell : SpellBase
     public float radius = 3f;
     public float delayBeforeExplosive = 3f;
     public float falldownForce = 200f;
+    public float explosionForce = 200f;
 
     public override void Activate(GameObject caster, CardController cardController, Vector3 throwVelocity)
     {

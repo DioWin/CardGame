@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AIBehaviour : MonoBehaviour
 {
@@ -12,15 +13,40 @@ public class AIBehaviour : MonoBehaviour
     private IDamageable target;
     private MovementController movement;
     private WeaponControlSystem weapon;
+    private HealthController healthController;
+    private NavMeshAgent navMeshAgent;
+
+    private bool isBlockedBehavior;
 
     private void Awake()
     {
+        navMeshAgent = GetComponent<NavMeshAgent>();
         movement = GetComponent<MovementController>();
         weapon = GetComponent<WeaponControlSystem>();
+        healthController = GetComponent<HealthController>();
+
+        healthController.OnDeath += HandleDeath;
+    }
+
+    private void OnDestroy()
+    {
+        healthController.OnDeath -= HandleDeath;
+    }
+
+    private void HandleDeath()
+    {
+        movement.enabled = false;
+        navMeshAgent.enabled = false;
+
+        movement.Stop();
+        isBlockedBehavior = true;
     }
 
     private void Update()
     {
+        if (isBlockedBehavior)
+            return;
+
         UpdateState();
         HandleState();
     }
@@ -47,6 +73,7 @@ public class AIBehaviour : MonoBehaviour
 
     private void HandleState()
     {
+
         switch (currentState)
         {
             case State.Idle:

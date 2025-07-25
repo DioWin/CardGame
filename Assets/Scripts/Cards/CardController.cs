@@ -75,17 +75,16 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         IsBeingDragged = false;
         canvasGroup.blocksRaycasts = true;
 
+        view.SetDraggStatus(false);
+
         OnDragStatusChangedEvent?.Invoke(false);
         OnEndDraggingEvent?.Invoke();
-
-        view.SetDraggStatus(false);
 
         if (!inHand)
            return;
 
         float deltaY = view.GetVisual().anchoredPosition.y - dragStartPosition.y;
         float t = Mathf.InverseLerp(fadeEndOffset, fadeStartOffset, deltaY);
-
 
         if (t < throwThreshold)
         {
@@ -146,8 +145,10 @@ public class CardController : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public void SetSiblingIndex(int index)
     {
+        Debug.Log("SetSiblingIndex");
+
         transform.SetSiblingIndex(index);
-        view.GetVisual().SetSiblingIndex(index);
+        view.UpdateSublingIndexAndCanvasSorting(index);
     }
 
     public void DestroyCard()

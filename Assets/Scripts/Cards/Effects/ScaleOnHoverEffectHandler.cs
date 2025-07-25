@@ -8,6 +8,7 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
 
     [Header("Hover Settings")]
     [SerializeField] private float hoverScale = 1.1f;
+    [SerializeField] private float drugingSize = 1.1f;
     [SerializeField] private float defaultHoverScale = 1f;
     [SerializeField] private float animDuration = 0.15f;
 
@@ -25,7 +26,8 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
 
         HandlePointerExit();
 
-        controller.OnDragStatusChangedEvent += HandleDragStatusChanged;
+        controller.OnDragStatusChangedEvent += HandleDragProgressChanged;
+        controller.OnDragDistanceChangedEvent += HandleDragStatusChanged;
         controller.OnPointerEnterEvent += HandlePointerEnter;
         controller.OnPointerExitEvent += HandlePointerExit;
     }
@@ -34,7 +36,8 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
     {
         if (controller != null)
         {
-            controller.OnDragStatusChangedEvent -= HandleDragStatusChanged;
+            controller.OnDragStatusChangedEvent -= HandleDragProgressChanged;
+            controller.OnDragDistanceChangedEvent -= HandleDragStatusChanged;
             controller.OnPointerEnterEvent -= HandlePointerEnter;
             controller.OnPointerExitEvent -= HandlePointerExit;
         }
@@ -50,8 +53,21 @@ public class ScaleOnHoverEffectHandler : MonoBehaviour, ICardEffect
         view.GetVisual().DOScale(defaultHoverScale, animDuration);
     }
 
-    private void HandleDragStatusChanged(bool isDragging)
+    private void HandleDragStatusChanged(float value)
     {
-        HandlePointerEnter();
+        view.GetVisual().DOScale(drugingSize, animDuration);
+    }
+
+    private void HandleDragProgressChanged(bool value)
+    {
+        if (!value)
+        {
+            HandlePointerExit();
+        }
+    }
+
+    public void Init(GameCardView view, CardController controller)
+    {
+        throw new System.NotImplementedException();
     }
 }

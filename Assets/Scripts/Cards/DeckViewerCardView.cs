@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -51,9 +52,16 @@ public class DeckViewerCardView : BaseCardView
         {
             FollowCursor();
             HandleRotationToMouse();
+
+            OverrideCanvas(true);
+            UpdateSublingIndexAndCanvasSorting(200);
         }
         else
         {
+            UpdateSublingIndexAndCanvasSorting(modelRect.GetSiblingIndex());
+
+            OverrideCanvas(false);
+
             visual.position = Vector3.Lerp(
                 visual.position,
                 modelRect.position,
@@ -63,5 +71,10 @@ public class DeckViewerCardView : BaseCardView
             if (!nudgeInProgress)
                 LerpToRotation(modelRect.eulerAngles.z, 10f);
         }
+    }
+
+    private void UpdateSublingIndexAndCanvasSorting(int value)
+    {
+        canvas.sortingOrder = value;
     }
 }

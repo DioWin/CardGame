@@ -144,7 +144,6 @@ public class CardViewMVVM : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     public void OnEndDrag(PointerEventData eventData)
     {
         isDragging = false;
-        canvas.overrideSorting = false;
         canvas.sortingOrder = transform.GetSiblingIndex();
         canvasGroup.blocksRaycasts = true;
 
