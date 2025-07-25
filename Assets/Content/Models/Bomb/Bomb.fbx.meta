@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2d9f6617add627d49adcc88aa1982970
+guid: a3b28f4ac0549274faa131454f27b0b1
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -8,7 +8,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Bomb
-    second: {fileID: 2100000, guid: 12f88bfc03f03e4468feeb54e9afd664, type: 2}
+    second: {fileID: 2100000, guid: 3cfffd9df2c4cf04d8567b308b8c83fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bomb_Fuse
+    second: {fileID: 2100000, guid: 8a1ccea8f13173f40aa6aa75f0f75b7a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
